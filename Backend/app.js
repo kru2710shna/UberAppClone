@@ -7,14 +7,19 @@ dotenv.config()
 const connectToDb = require('./db/db.js')
 connectToDb ()
 
-
+const userRoutes = require('./routes/userRoutes.js')
 const cors = require('cors')
 
 app.use(cors())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 app.get('/', (req, res) => {
     res.send('Hello, world')
-
 })
+
+app.use('/users',userRoutes)
+
+
 
 module.exports = app
