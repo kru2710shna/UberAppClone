@@ -2,6 +2,7 @@
 const UserModel = require('../models/UserModels.js')
 const userServices = require('../services/userServices.js')
 const { validationResult } = require('express-validator')
+const  blacklistModel = require('../models/blacklistTokenModels.js')
 
 const registerUser = async (req, res, next) => {
 
@@ -21,6 +22,7 @@ const registerUser = async (req, res, next) => {
         password: hashPassword
     })
     const token = user.generateAuthToken()
+    res.cookie('token', token)
 
     res.status(201).json({ token: token, user })
 
@@ -70,11 +72,41 @@ const loginUser = async (req, res, next) => {
 module.exports = loginUser;
 
 
-const logoutUser = async (req, res, next) => {
+const logoutUser = async (req, res) => {
+    try {
+
+        res.clearCookie('token');
+        const token =
+            (req.cookies && req.cookies.token) || 
+            (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+
+        if (!token) {
+            return res.status(400).json({ message: 'No token provided for logout.' });
+        }
+        console.log(token, "token")
+
+
+        await blacklistModel.create({ token });
+
+
+        return res.status(200).json({ message: 'Logged out successfully.' });
+    } catch (error) {
+        console.error('Logout error:', error.message);
+        return res.status(500).json({ message: 'Server error during logout.' });
+    }
+};
+
+
+
+const profileUser = async (req, res, next) => {
+
+    res.status(200).json({message: "Profile Displayed"})
 
 }
+
 module.exports = {
     registerUser,
     logoutUser,
-    loginUser
+    loginUser,
+    profileUser 
 };
