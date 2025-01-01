@@ -1,4 +1,4 @@
-const userModel = require('../models/UserModels.js')
+ 
 
 
 module.exports.createUser = async ({ firstname, lastname, email, password }) => {

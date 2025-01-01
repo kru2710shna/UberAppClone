@@ -13,6 +13,12 @@ const registerUser = async (req, res, next) => {
 
     const { fullname, email, password } = req.body
 
+    const isUser = await UserModel.findOne({email})
+
+    if (isUser){
+        return res.status(400).json({message: 'User Already Registered with this email address'})
+    }
+
     const hashPassword = await UserModel.hashPassword(password)
 
     const user = await userServices.createUser({
