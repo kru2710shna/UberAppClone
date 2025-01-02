@@ -25,7 +25,8 @@ const captainSchema = mongoose.Schema({
     password: {
         type: String,
             required: true,
-            minLength: [5, "Passwordhas to be atleast 5  characters long"]
+            minLength: [5, "Passwordhas to be atleast 5  characters long"],
+            select: false
 
     },
     socketId : {
@@ -74,6 +75,6 @@ captainSchema.statics.hashPassword = async function (password) {
     return await bcrypt.hash(password, 10);
   };
 
-const captainModel = mongoose.model('Captain', captainSchema)
+const CaptainModel = mongoose.model('Captain', captainSchema)
 
-module.exports = captainModel
+module.exports = CaptainModel
