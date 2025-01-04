@@ -1,24 +1,53 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useContext, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios';
+import { UserDataContext } from '../context/UserContext.jsx'
 
 const UserSignUp = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [userData, setUserData] = useState({})
+  const [firstname, setFirstName] = useState('')
+  const [lastname, setLastName] = useState('')
+  const { setUser } = useContext(UserDataContext);
+
+  const navigate = useNavigate()
 
 
-  const submitHandler = (e)=>{
+  const submitHandler = async (e) => {
     e.preventDefault()
-    setUserData({
-      fullName:{
-        firstName:firstName,
-        lastName:lastName
+    // Frontend validation
+    if (firstname.length < 3) {
+      alert('First Name must be at least 3 characters long');
+      return;
+    }
+
+    if (lastname.length < 3) {
+      alert('Last Name must be at least 3 characters long');
+      return;
+    }
+
+    const newUser = {
+      fullname: {
+        firstname: firstname,
+        lastname: lastname
       },
-      email:email,
-      password:password
-    })
+      email: email,
+      password: password,
+    };
+
+    console.log('Submitting new user:', newUser);
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`, newUser);
+      if (response.status === 201) {
+        setUser(response.data.user);
+        localStorage.setItem('token', response.data.token);
+        navigate('/home');
+      }
+    } catch (error) {
+      console.error('Registration failed:', error);
+      alert('Something went wrong. Please try again.');
+    }
+
 
     setEmail('')
     setFirstName('')
@@ -43,8 +72,8 @@ const UserSignUp = () => {
                 className='bg-[#eeeeee] w-1/2 rounded-lg px-4 py-2 border  text-lg placeholder:text-base'
                 type="text"
                 placeholder='First name'
-                value={firstName}
-                onChange={(e)=>{
+                value={firstname}
+                onChange={(e) => {
                   setFirstName(e.target.value)
                 }}
               />
@@ -53,8 +82,8 @@ const UserSignUp = () => {
                 className='bg-[#eeeeee] w-1/2  rounded-lg px-4 py-2 border  text-lg placeholder:text-base'
                 type="text"
                 placeholder='Last name'
-                value={lastName}
-                onChange={(e)=>{
+                value={lastname}
+                onChange={(e) => {
                   setLastName(e.target.value)
                 }}
               />
@@ -64,7 +93,7 @@ const UserSignUp = () => {
             <input
               required
               value={email}
-              onChange={(e)=>{
+              onChange={(e) => {
                 setEmail(e.target.value)
               }}
               className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
@@ -77,7 +106,7 @@ const UserSignUp = () => {
             <input
               className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
               value={password}
-              onChange={(e)=>{
+              onChange={(e) => {
                 setPassword(e.target.value)
               }}
               required type="password"
@@ -86,18 +115,18 @@ const UserSignUp = () => {
 
             <button
               className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
-            >Login</button>
+            >Create Account  </button>
 
           </form>
           <p className='text-center'>Already have a account? <Link to='/login' className='text-blue-600'>Login here</Link></p>
         </div>
         <div>
           <p className='text-[10px] leading-tight'>This site is protected by reCAPTCHA and the <span className='underline'>Google Privacy
-Policy</span> and <span className='underline'>Terms of Service apply</span>.</p>
+            Policy</span> and <span className='underline'>Terms of Service apply</span>.</p>
         </div>
       </div>
     </div>
   )
-}
 
+}
 export default UserSignUp
